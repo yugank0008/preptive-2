@@ -1,0 +1,510 @@
+// app/category/[slug]/page.jsx
+import { notFound } from 'next/navigation';
+import Link from 'next/link';
+import { createClient } from '@/utils/supabase/server';
+import { GraduationCap, BarChart3, Ticket, BookCheck, Newspaper } from 'lucide-react';
+
+export async function generateMetadata({ params }) {
+  // Await the params promise
+  const { slug } = await params;
+  const supabase = createClient();
+
+  try {
+    const { data: category, error } = await supabase
+      .from('categories')
+      .select('name, description')
+      .eq('slug', slug)
+      .single();
+
+    if (error || !category) {
+      return {
+        title: 'Category Not Found | Preptive',
+        description: 'The requested category could not be found.',
+      };
+    }
+
+    return {
+      title: `${category.name} | Latest Updates, Syllabus & Exam Resources | Preptive`,
+      description: category.description || `Stay updated with the latest ${category.name} news, syllabus, admit cards, results, and exam preparation resources on Preptive.`,
+      keywords: [
+        `${category.name.toLowerCase()} syllabus`,
+        `${category.name.toLowerCase()} exam`,
+        `${category.name.toLowerCase()} 2025`,
+        `${category.name.toLowerCase()} preparation`,
+        'study materials',
+        'exam updates'
+      ],
+      openGraph: {
+        title: `${category.name} - Exam Resources & Updates | Preptive`,
+        description: category.description || `Comprehensive exam preparation resources for ${category.name} including syllabus, patterns, and latest updates.`,
+        url: `https://www.preptive.in/category/${slug}`,
+        siteName: 'Preptive',
+        images: [
+          {
+            url: 'https://www.preptive.in/og-image.jpg',
+            width: 1200,
+            height: 630,
+            alt: `${category.name} Exam Resources - Preptive`,
+          },
+        ],
+        locale: 'en_US',
+        type: 'website',
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title: `${category.name} Exam Resources | Preptive`,
+        description: category.description || `Latest ${category.name} syllabus, updates, and preparation tips.`,
+        images: ['https://www.preptive.in/og-image.jpg'],
+        site: '@preptive',
+      },
+      alternates: {
+        canonical: `https://www.preptive.in/category/${slug}`,
+      },
+      robots: {
+        index: true,
+        follow: true,
+        googleBot: {
+          index: true,
+          follow: true,
+          'max-video-preview': -1,
+          'max-image-preview': 'large',
+          'max-snippet': -1,
+        },
+      },
+    };
+  } catch (error) {
+    console.error('Error fetching category metadata:', error);
+    return {
+      title: 'Category | Preptive',
+      description: 'Exam preparation resources, syllabus updates, and study materials.',
+    };
+  }
+}
+
+export default async function CategoryPage({ params }) {
+  // Await the params promise here too
+  const { slug } = await params;
+  const supabase = createClient();
+
+  try {
+    // Fetch category details
+    const { data: category, error: categoryError } = await supabase
+      .from('categories')
+      .select('*')
+      .eq('slug', slug)
+      .single();
+
+    if (categoryError || !category) {
+      notFound();
+    }
+
+    // Fetch posts for this category with proper joins
+    const { data: posts, error: postsError } = await supabase
+      .from('posts')
+      .select(`
+        id,
+        slug,
+        title,
+        short_description,
+        featured_image,
+        published_at,
+        status,
+        author:author_id (id, name, avatar_url),
+        post_category_map!inner (
+          category:categories!inner (id, name, slug)
+        ),
+        post_exam_map (
+          exam:examinations (id, name, slug)
+        )
+      `)
+      .eq('status', 'published')
+      .eq('post_category_map.category.slug', slug)
+      .order('published_at', { ascending: false })
+      .limit(12);
+
+    if (postsError) {
+      console.error('Error fetching posts:', postsError);
+    }
+
+    const formatDate = (dateString) => {
+      try {
+        return new Date(dateString).toLocaleDateString('en-IN', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+        });
+      } catch {
+        return '';
+      }
+    };
+
+    // Get unique exams from posts for filtering
+    const uniqueExams = posts?.reduce((acc, post) => {
+      post.post_exam_map?.forEach(({ exam }) => {
+        if (exam && !acc.some(e => e.id === exam.id)) {
+          acc.push(exam);
+        }
+      });
+      return acc;
+    }, []) || [];
+
+    return (
+      <div className="min-h-screen bg-gray-50">
+        {/* Schema.org Structured Data */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'CollectionPage',
+              name: `${category.name} - Exam Resources`,
+              description: category.description || `Comprehensive ${category.name} exam preparation resources`,
+              url: `https://www.preptive.in/category/${slug}`,
+              publisher: {
+                '@type': 'Organization',
+                name: 'Preptive',
+                url: 'https://www.preptive.in',
+                logo: 'https://www.preptive.in/logo.png',
+                sameAs: [
+                  'https://twitter.com/preptive',
+                  'https://facebook.com/preptive',
+                  'https://linkedin.com/company/preptive'
+                ]
+              },
+              mainEntity: {
+                '@type': 'ItemList',
+                numberOfItems: posts?.length || 0,
+                itemListElement: posts?.map((post, index) => ({
+                  '@type': 'ListItem',
+                  position: index + 1,
+                  url: `https://www.preptive.in/posts/${post.slug}`,
+                  item: {
+                    '@type': 'Article',
+                    headline: post.title,
+                    description: post.short_description,
+                    image: post.featured_image,
+                    datePublished: post.published_at,
+                    author: {
+                      '@type': 'Person',
+                      name: post.author?.name
+                    },
+                    publisher: {
+                      '@type': 'Organization',
+                      name: 'Preptive'
+                    }
+                  }
+                })) || []
+              }
+            })
+          }}
+        />
+
+       {/* Hero Section */}
+<div className="bg-black py-4">
+  <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+    <div className="flex items-center justify-between">
+
+      {/* Breadcrumb */}
+      <nav aria-label="Breadcrumb">
+        <ol className="flex items-center space-x-2">
+          <li>
+            <Link href="/" className="flex items-center text-sm font-medium text-blue-100 hover:text-white">
+              <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+              </svg>
+              Home
+            </Link>
+          </li>
+
+          <li className="text-blue-200">/</li>
+
+          <li>
+            <span className="text-sm font-medium text-white">
+              {category.name}
+            </span>
+          </li>
+        </ol>
+      </nav>
+
+      {/* Category Title (Right Side) */}
+      <h1 className="text-lg sm:text-xl font-semibold text-white">
+        {category.name}
+      </h1>
+
+    </div>
+  </div>
+</div>
+
+        {/* Main Content */}
+        <main className="px-4 py-12 mx-auto max-w-7xl sm:px-6 lg:px-8">
+          {/* Exam Filter (if multiple exams) */}
+          {uniqueExams.length > 1 && (
+            <div className="mb-12">
+              <h2 className="mb-4 text-2xl font-bold text-gray-900">Filter by Exam</h2>
+              <div className="flex flex-wrap gap-2">
+                <button className="px-4 py-2 text-sm font-medium text-blue-700 bg-blue-100 rounded-full hover:bg-blue-200 transition-colors">
+                  All Exams
+                </button>
+                {uniqueExams.map((exam) => (
+                  <button
+                    key={exam.id}
+                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors"
+                  >
+                    {exam.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+{/* Simple List View */}
+<div className="space-y-6">
+
+  {/* Loop through posts (latest first) */}
+  {posts
+    ?.sort((a, b) => new Date(b.published_at) - new Date(a.published_at))
+    .map((post) => (
+      <Link 
+        href={`/posts/${post.slug}`} 
+        key={post.id} 
+        className="block pb-6 border-b border-gray-200 group"
+      >
+
+        {/* Exam Tag + Date */}
+        <div className="flex items-center gap-3 mb-2">
+          {post.post_exam_map?.[0]?.exam?.name && (
+            <span className="px-2 py-1 text-xs font-medium text-blue-700 bg-blue-50 rounded">
+              {post.post_exam_map[0].exam.name}
+            </span>
+          )}
+          <time className="text-xs text-gray-500">
+            {formatDate(post.published_at)}
+          </time>
+        </div>
+
+        {/* Title (Click + Underline Hover) */}
+        <h2
+          className="
+            font-semibold text-gray-900 inline-block relative 
+            hover:text-blue-600 transition-colors
+            text-lg md:text-xl   /* mobile small, desktop normal */
+          "
+        >
+          <span
+            className="
+              bg-gradient-to-r from-blue-600 to-blue-600 
+              bg-[length:0px_2px] bg-left-bottom bg-no-repeat 
+              transition-[background-size] duration-300 
+              group-hover:bg-[length:100%_2px] pb-0.5
+            "
+          >
+            {post.title}
+          </span>
+        </h2>
+
+        {/* Description (Also Clickable) */}
+        <p className="mt-2 text-gray-600 text-sm md:text-base">
+          {post.short_description || "Click to read the full article."}
+        </p>
+
+      </Link>
+  ))}
+
+</div>
+
+{/* Pagination (Optional) */}
+{posts.length >= 12 && (
+  <div className="mt-12 text-center">
+    <button className="px-8 py-3 font-medium text-white bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 transform hover:-translate-y-0.5">
+      Load More Articles
+    </button>
+  </div>
+)}
+
+{/* No Posts Fallback */}
+{posts.length === 0 && (
+  <div className="py-20 text-center">
+    <div className="inline-flex items-center justify-center w-20 h-20 mb-6 rounded-full bg-blue-50">
+      <svg className="w-10 h-10 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+    </div>
+    <h3 className="mb-3 text-2xl font-bold text-gray-900">No articles yet</h3>
+    <p className="mb-8 text-gray-600 max-w-md mx-auto">
+      We&apos;re currently preparing amazing content for this category. Check back soon for the latest updates and resources!
+    </p>
+    <Link
+      href="/posts"
+      className="inline-flex items-center px-6 py-3 font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
+    >
+      <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+      </svg>
+      Browse All Articles
+    </Link>
+  </div>
+)}
+
+         {/* SEO Content Section */}
+<div className="mt-16 p-1  ">
+  
+
+  <div className="prose prose-lg max-w-none text-gray-700">
+
+    {/* Dynamic Intro Based on Category */}
+    {category.name.toLowerCase() === "syllabus" && (
+      <p>
+        Preptive provides the latest and officially verified {category.name.toLowerCase()} 
+        . for all competitive exams. Our syllabus pages include updated topics, chapter-wise 
+        weightage, marking schemes, and downloadable PDFs to help students prepare with accurate information.
+      </p>
+    )}
+
+    {category.name.toLowerCase() === "results" && (
+      <p>
+        Preptive delivers fast, accurate, and reliable {category.name.toLowerCase()} updates 
+        for all major government and competitive exams. We provide result dates, scorecard 
+        download links, cutoff updates, and step-by-step instructions to check your result.
+      </p>
+    )}
+
+    {category.name.toLowerCase() === "admit card" && (
+      <p>
+        Preptive offers timely {category.name.toLowerCase()} updates along with 
+        direct download links, exam-day guidelines, required documents, and important instructions 
+        to avoid last-minute issues on the exam day.
+      </p>
+    )}
+
+    {category.name.toLowerCase() === "exam date" && (
+      <p>
+        Preptive keeps you updated with the latest {category.name.toLowerCase()} announcements. 
+        We provide official schedules, revised calendars, upcoming exam timelines, and important 
+        alerts so students never miss any important exam event.
+      </p>
+    )}
+
+    {category.name.toLowerCase() === "previous papers" && (
+      <p>
+        Preptive offers authentic {category.name.toLowerCase()} collections with detailed 
+        solutions, exam trends, and difficulty analysis to boost your exam preparation.
+      </p>
+    )}
+
+    {category.name.toLowerCase() === "cutoff" && (
+      <p>
+        Preptive brings accurate {category.name.toLowerCase()} predictions and 
+        analysis based on past trends, difficulty level, and student feedback. 
+        Official cutoff updates are also published instantly.
+      </p>
+    )}
+
+    {/* Default fallback for any other category */}
+    {![
+      "syllabus",
+      "results",
+      "admit card",
+      "exam date",
+      "previous papers",
+      "cutoff"
+    ].includes(category.name.toLowerCase()) && (
+      <p>
+        Preptive provides verified information, updates, and resources related to 
+        {` ${category.name.toLowerCase()}`} to help students stay informed and well prepared.
+      </p>
+    )}
+
+    </div>
+</div>
+
+        </main>
+
+{/* Related Categories */}
+<section className="bg-emerald-50 py-16 mt-4 border-t">
+  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <h2 className="text-2xl sm:text-3xl font-bold text-center text-gray-900 mb-8 sm:mb-12 flex items-center justify-center gap-2">
+      {/* Add your Link icon component here if needed */}
+      Explore Other Categories
+    </h2>
+    <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
+      {['Jobs', 'Results', 'Admit Card', 'Syllabus', 'News'].map((cat) => (
+        <Link
+          key={cat}
+          href={`/category/${cat.toLowerCase().replace(/\s+/g, '-')}`}
+          className="bg-white rounded-lg sm:rounded-xl shadow-sm p-3 sm:p-4 md:p-6 text-center hover:shadow-md transition-shadow"
+          // If you need conditional styling, uncomment and adjust:
+          // className={`bg-white rounded-lg sm:rounded-xl shadow-sm p-3 sm:p-4 md:p-6 text-center hover:shadow-md transition-shadow ${
+          //   cat === category.data.name ? 'ring-2 ring-blue-500' : ''
+          // }`}
+        >
+          <div className="mb-2 sm:mb-3 md:mb-4 flex justify-center">
+            {/* Icons - you'll need to import these from lucide-react or similar */}
+            {cat === 'Jobs' && (
+              <svg className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                {/* GraduationCap icon SVG */}
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 14l9-5-9-5-9 5 9 5z M12 14l9-5-9-5-9 5 9 5z" />
+              </svg>
+            )}
+            {cat === 'Results' && (
+              <svg className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                {/* BarChart3 icon SVG */}
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+              </svg>
+            )}
+            {cat === 'Admit Card' && (
+              <svg className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                {/* Ticket icon SVG */}
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
+              </svg>
+            )}
+            {cat === 'Syllabus' && (
+              <svg className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                {/* BookCheck icon SVG - using book icon as fallback */}
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+              </svg>
+            )}
+            {cat === 'News' && (
+              <svg className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                {/* Newspaper icon SVG */}
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+              </svg>
+            )}
+          </div>
+          <h3 className="font-bold text-gray-900 text-sm sm:text-base mb-1 sm:mb-2">{cat}</h3>
+          <p className="text-xs sm:text-sm text-gray-600 leading-tight sm:leading-normal">
+            {cat === 'Jobs' && 'Latest job notifications & vacancies'}
+            {cat === 'Results' && 'Exam results & scorecards'}
+            {cat === 'Admit Card' && 'Hall tickets & admit cards'}
+            {cat === 'Syllabus' && 'Complete exam syllabus'}
+            {cat === 'News' && 'Latest exam news & updates'}
+          </p>
+        </Link>
+      ))}
+    </div>
+  </div>
+</section>       
+      </div>
+    );
+  } catch (error) {
+    console.error('Error loading category page:', error);
+    notFound();
+  }
+}
+
+// Generate static params for SSG
+export async function generateStaticParams() {
+  const supabase = createClient();
+  
+  try {
+    const { data: categories } = await supabase
+      .from('categories')
+      .select('slug');
+
+    return categories?.map(({ slug }) => ({
+      slug,
+    })) || [];
+  } catch (error) {
+    console.error('Error generating static params:', error);
+    return [];
+  }
+}
