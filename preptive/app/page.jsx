@@ -584,11 +584,11 @@ export default async function HomePage() {
             </div>
             <Link
               href="/posts"
-              className="hidden sm:flex items-center px-6 py-3 font-medium text-white bg-blue-600 rounded-full hover:bg-blue-700 transition-colors"
+              className="hidden sm:flex items-center px-6 py-3 font-medium text-white bg-emerald-600 rounded-full hover:bg-emerald-700 transition-colors"
               aria-label="View all posts"
             >
-              View all posts
-              <ArrowRight className="w-5 h-5 ml-2" aria-hidden="true" />
+              All posts
+              <ArrowRight className="w-3 h-3 ml-2" aria-hidden="true" />
             </Link>
           </div>
 
