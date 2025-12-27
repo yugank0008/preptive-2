@@ -26,42 +26,52 @@ export default function TableOfContents({ headings }) {
     return () => observer.disconnect();
   }, [headings]);
 
-  const scrollToHeading = (id) => {
-    const element = document.getElementById(id);
-    if (element) {
-      window.scrollTo({
-        top: element.offsetTop - 100,
-        behavior: 'smooth',
-      });
-    }
-  };
-
   return (
-    <nav className="bg-emerald-50 rounded-2xl shadow-lg p-6 sticky top-24">
-      <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h7" />
-        </svg>
-        Table of Contents
-      </h3>
-      <ul className="space-y-2">
-        {headings.map((heading, index) => (
-          <li key={index}>
-            <button
-              onClick={() => scrollToHeading(`heading-${index}`)}
-              className={`text-left w-full px-3 py-2 rounded-lg transition-all ${
-                activeId === `heading-${index}`
-                  ? 'bg-blue-50 text-blue-700 font-semibold'
-                  : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
-              } ${
-                heading.level === 3 ? 'ml-4 text-sm' : ''
-              }`}
-            >
-              {heading.text}
-            </button>
-          </li>
-        ))}
-      </ul>
-    </nav>
+    <div className="border border-gray-300 rounded-lg overflow-hidden">
+      {/* Header remains the same */}
+      <div className="bg-emerald-50 px-6 py-4 border-b border-gray-300">
+        <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h7" />
+          </svg>
+          Table of Contents
+        </h3>
+      </div>
+
+      {/* Table-like content section */}
+      <div className="bg-white">
+        <table className="w-full border-collapse">
+          <tbody>
+            {headings.map((heading, index) => (
+              <tr 
+                key={index}
+                className={`border-b border-gray-200 last:border-b-0 ${
+                  activeId === `heading-${index}` ? 'bg-blue-50' : ''
+                }`}
+              >
+                <td 
+                  className={`py-3 px-6 text-left ${
+                    heading.level === 3 ? 'pl-10' : 
+                    heading.level === 2 ? 'pl-6' : 
+                    'pl-4'
+                  }`}
+                >
+                  {/* Simple text - not clickable */}
+                  <span className={`inline-block ${
+                    activeId === `heading-${index}` 
+                      ? 'text-blue-700 font-semibold' 
+                      : 'text-gray-700'
+                  } ${
+                    heading.level === 3 ? 'text-sm' : 'text-base'
+                  }`}>
+                    {heading.text}
+                  </span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
   );
 }

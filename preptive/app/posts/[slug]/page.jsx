@@ -95,12 +95,7 @@ export async function generateMetadata({ params }) {
   const defaultKeywords = [
     ...examNames,
     ...categoryNames,
-    'preparation',
-    'exam guide',
-    'study material',
-    'syllabus',
-    'previous year papers',
-    'mock tests',
+    
   ];
   const keywords = post.seo_keywords ? 
     [...post.seo_keywords, ...defaultKeywords] : 

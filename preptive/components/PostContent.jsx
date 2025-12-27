@@ -1,7 +1,15 @@
-
-
 // components/PostContent.jsx
+'use client';
+
+import { useState } from 'react';
+
 export default function PostContent({ content, language }) {
+  const [openFaqIndex, setOpenFaqIndex] = useState(null);
+
+  const toggleFaq = (index) => {
+    setOpenFaqIndex(openFaqIndex === index ? null : index);
+  };
+
   const renderContent = (item, index) => {
     switch (item.type) {
       case 'heading':
@@ -209,6 +217,79 @@ export default function PostContent({ content, language }) {
           >
             {item.text}
           </span>
+        );
+
+      case 'faq':
+        const isOpen = openFaqIndex === index;
+        const faqId = `faq-${index}`;
+        
+        return (
+          <div key={index} className="mb-2" itemScope itemType="https://schema.org/FAQPage">
+            <div 
+              itemScope 
+              itemProp="mainEntity" 
+              itemType="https://schema.org/Question"
+              className="border border-gray-200 rounded-lg overflow-hidden"
+            >
+              <button
+                onClick={() => toggleFaq(index)}
+                className="w-full px-6 py-5 text-left bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-all duration-200"
+                aria-expanded={isOpen}
+                aria-controls={`${faqId}-answer`}
+              >
+                <div className="flex items-center justify-between">
+                  <h3 
+                    className="text-lg font-semibold text-gray-900 pr-6"
+                    itemProp="name"
+                  >
+                    {item.question}
+                  </h3>
+                  <svg
+                    className={`w-6 h-6 text-gray-500 transform transition-transform duration-200 flex-shrink-0 ${
+                      isOpen ? 'rotate-180' : ''
+                    }`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                </div>
+              </button>
+              
+              <div
+                id={`${faqId}-answer`}
+                className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                  isOpen ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0'
+                }`}
+                aria-hidden={!isOpen}
+              >
+                <div 
+                  className="px-6 pb-6 pt-2 border-t border-gray-100 bg-gray-50"
+                  itemScope
+                  itemProp="acceptedAnswer"
+                  itemType="https://schema.org/Answer"
+                >
+                  <div 
+                    className={`prose prose-lg max-w-none ${
+                      language === 'hi' 
+                        ? 'font-noto-devanagari'
+                        : 'font-inter'
+                    }`}
+                    itemProp="text"
+                  >
+                    {item.answer}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         );
 
       default:

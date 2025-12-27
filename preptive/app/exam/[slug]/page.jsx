@@ -30,19 +30,19 @@ export async function generateMetadata({ params }) {
 
     return {
       title: `${examName} (${boardName}) | Latest Updates, Syllabus, Exam Pattern & Preparation | Preptive`,
-      description: exam.description || `Complete guide for ${examName}: syllabus, exam pattern, previous year papers, admit card, results, cutoff, and preparation tips.`,
+      description: exam.description || ` ${examName}: syllabus, exam pattern, previous year papers, admit card, results, cutoff, and preparation tips.`,
       keywords: [
         `${examName.toLowerCase()} syllabus`,
-        `${examName.toLowerCase()} exam pattern`,
-        `${examName.toLowerCase()} preparation`,
-        `${examName.toLowerCase()} previous year papers`,
-        `${examName.toLowerCase()} admit card`,
-        `${examName.toLowerCase()} result`,
-        `${examName.toLowerCase()} cutoff`,
-        `${examName.toLowerCase()} 2025`
+        `exam pattern`,
+        `preparation`,
+        `previous year papers`,
+        `admit card`,
+        `result`,
+        `cutoff`,
+        `${examName.toLowerCase()} 2026`
       ],
       openGraph: {
-        title: `${examName} - Complete Exam Guide | Preptive`,
+        title: `${examName} - Latest Updates, Syllabus, Exam Pattern | Preptive`,
         description: exam.description || `Everything you need to know about ${examName}: syllabus, pattern, preparation tips, and latest updates.`,
         url: `https://www.preptive.in/exam/${slug}`,
         siteName: 'Preptive',
@@ -51,7 +51,7 @@ export async function generateMetadata({ params }) {
             url: 'https://www.preptive.in/og-image.jpg',
             width: 1200,
             height: 630,
-            alt: `${examName} Exam Guide - Preptive`,
+            alt: `${examName} Latest Updates, Syllabus, Exam Pattern - Preptive`,
           },
         ],
         locale: 'en_US',
@@ -59,7 +59,7 @@ export async function generateMetadata({ params }) {
       },
       twitter: {
         card: 'summary_large_image',
-        title: `${examName} Exam Guide | Preptive`,
+        title: `${examName} - Latest Updates, Syllabus, Exam Pattern | Preptive`,
         description: exam.description || `Latest ${examName} syllabus, updates, and preparation tips.`,
         images: ['https://www.preptive.in/og-image.jpg'],
         site: '@preptive',

@@ -1,16 +1,19 @@
 'use client';
 import { RiTelegramLine } from "react-icons/ri";
 import { useState, useEffect, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import { RiSearchLine, RiNotification3Line, RiUserLine, RiMenuLine, RiCloseLine, RiArrowLeftLine } from "react-icons/ri";
 import { TiHome, TiCalendar, TiDocumentText, TiDownload } from "react-icons/ti";
 import { BiBriefcase, BiBookContent, BiChevronDown, BiChevronRight } from "react-icons/bi";
 
 const Header = () => {
+  const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [searchInput, setSearchInput] = useState('');
   const searchRef = useRef(null);
   const menuRef = useRef(null);
   const dropdownRef = useRef(null);
@@ -61,6 +64,33 @@ const Header = () => {
     }
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [searchOpen, isMobile]);
+
+  // Handle search submission
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    if (searchInput.trim()) {
+      router.push(`/search?q=${encodeURIComponent(searchInput.trim())}`);
+      setSearchOpen(false);
+      setSearchInput('');
+      if (isMobile) {
+        setIsMenuOpen(false);
+      }
+    }
+  };
+
+  // Handle search key press
+  const handleSearchKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      handleSearchSubmit(e);
+    } else if (e.key === 'Escape') {
+      setSearchOpen(false);
+    }
+  };
+
+  // Clear search input
+  const clearSearchInput = () => {
+    setSearchInput('');
+  };
 
   const allNavItems = [
     { name: 'Home', icon: <TiHome className="w-6 h-6 md:w-5 md:h-5" />, href: '/' },
@@ -222,25 +252,35 @@ const Header = () => {
             <div className="hidden md:block relative" ref={searchRef}>
               <div className={`relative transition-all duration-500 ${searchOpen ? 'w-64 lg:w-80' : 'w-10'}`}>
                 {searchOpen ? (
-                  <div className="flex items-center">
+                  <form onSubmit={handleSearchSubmit} className="flex items-center">
                     <input
                       type="text"
+                      value={searchInput}
+                      onChange={(e) => setSearchInput(e.target.value)}
+                      onKeyDown={handleSearchKeyDown}
                       placeholder="Search exams, notifications, updates..."
-                      className="w-full pl-12 pr-4 py-3 bg-white/80 text-gray-800 backdrop-blur-sm rounded-full border-2 border-emerald-200 focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-200/50 shadow-lg transition-all duration-300"
+                      className="w-full pl-12 pr-10 py-3 bg-white/80 text-gray-800 backdrop-blur-sm rounded-full border-2 border-emerald-200 focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-200/50 shadow-lg transition-all duration-300"
                       autoFocus
-                      onKeyDown={(e) => {
-                        if (e.key === 'Escape') setSearchOpen(false);
-                      }}
                     />
                     <RiSearchLine className="absolute left-4 text-emerald-600 w-5 h-5" />
+                    {searchInput && (
+                      <button
+                        type="button"
+                        onClick={clearSearchInput}
+                        className="absolute right-10 text-gray-400 hover:text-gray-600 transition-colors"
+                        aria-label="Clear search"
+                      >
+                        <RiCloseLine className="w-5 h-5" />
+                      </button>
+                    )}
                     <button
-                      onClick={() => setSearchOpen(false)}
-                      className="absolute right-3 text-gray-400 hover:text-gray-600 transition-colors"
-                      aria-label="Close search"
+                      type="submit"
+                      className="absolute right-3 text-emerald-600 hover:text-emerald-700 transition-colors"
+                      aria-label="Search"
                     >
-                      <RiCloseLine className="w-5 h-5" />
+                      <RiArrowLeftLine className="w-5 h-5" />
                     </button>
-                  </div>
+                  </form>
                 ) : (
                   <button
                     onClick={() => setSearchOpen(true)}
@@ -286,46 +326,40 @@ const Header = () => {
           <div className="md:hidden absolute top-full left-0 right-0 bg-white shadow-2xl rounded-b-2xl border-t border-emerald-100 animate-slideDown">
             <div className="p-4">
               <div className="relative mb-4">
-                <input
-                  type="text"
-                  placeholder="Search exams, notifications, updates..."
-                  className="w-full pl-12 pr-4 py-3 bg-emerald-50 text-gray-800 rounded-xl border-2 border-emerald-200 focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-200/50 transition-all duration-300"
-                  autoFocus
-                />
-                <RiSearchLine className="absolute left-4 top-1/2 transform -translate-y-1/2 text-emerald-600 w-5 h-5" />
+                <form onSubmit={handleSearchSubmit}>
+                  <input
+                    type="text"
+                    value={searchInput}
+                    onChange={(e) => setSearchInput(e.target.value)}
+                    onKeyDown={handleSearchKeyDown}
+                    placeholder="Search exams, notifications, updates..."
+                    className="w-full pl-12 pr-10 py-3 bg-emerald-50 text-gray-800 rounded-xl border-2 border-emerald-200 focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-200/50 transition-all duration-300"
+                    autoFocus
+                  />
+                  <RiSearchLine className="absolute left-4 top-1/2 transform -translate-y-1/2 text-emerald-600 w-5 h-5" />
+                  {searchInput && (
+                    <button
+                      type="button"
+                      onClick={clearSearchInput}
+                      className="absolute right-12 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                      aria-label="Clear search"
+                    >
+                      <RiCloseLine className="w-5 h-5" />
+                    </button>
+                  )}
+                  <button
+                    type="submit"
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-emerald-600 hover:text-emerald-700 transition-colors"
+                    aria-label="Search"
+                  >
+                    <RiArrowLeftLine className="w-5 h-5" />
+                  </button>
+                </form>
               </div>
               
-              {/* Search Suggestions */}
-              <div className="space-y-2">
-                <p className="text-sm font-medium text-gray-600 px-2">Popular Searches:</p>
-                <div className="flex flex-wrap gap-2">
-                  {['SSC CGL', 'UPSC', 'Bank PO', 'Railway', 'SSC CHSL', 'JEE', 'NEET'].map((term) => (
-                    <button
-                      key={term}
-                      onClick={() => setSearchOpen(false)}
-                      className="px-3 py-2 bg-white hover:bg-emerald-50 text-emerald-700 rounded-lg text-sm font-medium transition-colors border border-emerald-200"
-                    >
-                      {term}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              
-              {/* Recent Searches */}
-              <div className="mt-4 pt-4 border-t border-gray-100">
-                <p className="text-sm font-medium text-gray-600 px-2 mb-2">Recent Searches:</p>
-                <div className="space-y-1">
-                  {['SSC CGL Syllabus', 'UPSC Notification 2024', 'Banking Jobs'].map((term, index) => (
-                    <button
-                      key={index}
-                      onClick={() => setSearchOpen(false)}
-                      className="w-full text-left px-3 py-2 hover:bg-gray-50 rounded-lg text-gray-700 text-sm flex items-center justify-between"
-                    >
-                      <span>{term}</span>
-                      <RiCloseLine className="w-4 h-4 text-gray-400 hover:text-gray-600" />
-                    </button>
-                  ))}
-                </div>
+              {/* Quick Search Tips */}
+              <div className="mt-2">
+                <p className="text-sm text-gray-600 px-2">Press Enter to search</p>
               </div>
             </div>
           </div>
