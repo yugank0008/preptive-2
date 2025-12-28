@@ -300,173 +300,173 @@ export default async function PostsPage({ searchParams }) {
         {/* Main Content */}
         <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
           {/* Posts List */}
-          <div 
-            className="space-y-0"
-            itemScope
-            itemType="https://schema.org/ItemList"
+<div 
+  className="space-y-0"
+  itemScope
+  itemType="https://schema.org/ItemList"
+>
+  {posts.length > 0 ? (
+    posts.map((post, index) => (
+      <article 
+        key={post.id}
+        className="group relative py-8 border-b border-gray-200 last:border-b-0 hover:bg-gray-50 transition-colors duration-300"
+        itemScope
+        itemType="https://schema.org/Article"
+        itemProp="itemListElement"
+      >
+        {/* Entire card is clickable via wrapping Link */}
+        <Link 
+          href={`/posts/${post.slug}`}
+          className="absolute inset-0 z-10"
+          aria-label={`Read article: ${post.title}`}
+          tabIndex={-1}
+        />
+        
+        {/* Post Meta Information */}
+        <div className="flex flex-wrap gap-2 mb-3 relative z-20">
+          {/* Exam Badges */}
+          {post.exams?.slice(0, 2).map(({ examinations }) => (
+            <Link
+              key={examinations.id}
+              href={`/exam/${examinations.slug || generateSlug(examinations.name)}`}
+              className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-purple-100 text-purple-800 hover:bg-purple-200 transition-colors no-underline relative z-30"
+              itemProp="keywords"
+            >
+              <svg 
+                className="w-3 h-3 mr-1" 
+                fill="currentColor" 
+                viewBox="0 0 20 20"
+              >
+                <path 
+                  fillRule="evenodd" 
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" 
+                  clipRule="evenodd" 
+                />
+              </svg>
+              {examinations.name}
+              {examinations.exam_boards?.[0]?.name && (
+                <span className="ml-1">• {examinations.exam_boards[0].name}</span>
+              )}
+            </Link>
+          ))}
+          
+          {/* Category Badges */}
+          {post.categories?.slice(0, 2).map(({ categories }) => (
+            <Link
+              key={categories.id}
+              href={`/category/${categories.slug}`}
+              className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800 hover:bg-blue-200 transition-colors no-underline relative z-30"
+              itemProp="articleSection"
+            >
+              {categories.name}
+            </Link>
+          ))}
+        </div>
+
+        {/* Post Title with Hover Effect */}
+        <h2 className="mb-3 relative">
+          <Link 
+            href={`/posts/${post.slug}`}
+            className="text-1xl md:text-2xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors leading-tight block no-underline"
+            itemProp="headline"
           >
-            {posts.length > 0 ? (
-              posts.map((post, index) => (
-                <article 
-                  key={post.id}
-                  className="group relative py-8 border-b border-gray-200 last:border-b-0 hover:bg-gray-50 transition-colors duration-300"
-                  itemScope
-                  itemType="https://schema.org/Article"
-                  itemProp="itemListElement"
-                >
-                  {/* Entire card is clickable via wrapping Link */}
-                  <Link 
-                    href={`/posts/${post.slug}`}
-                    className="absolute inset-0 z-10"
-                    aria-label={`Read article: ${post.title}`}
-                    tabIndex={-1}
-                  />
-                  
-                  {/* Post Meta Information */}
-                  <div className="flex flex-wrap gap-2 mb-3 relative z-20">
-                    {/* Exam Badges */}
-                    {post.exams?.slice(0, 2).map(({ examinations }) => (
-                      <Link
-                        key={examinations.id}
-                        href={`/exam/${examinations.slug || generateSlug(examinations.name)}`}
-                        className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-purple-100 text-purple-800 hover:bg-purple-200 transition-colors no-underline relative z-30"
-                        itemProp="keywords"
-                      >
-                        <svg 
-                          className="w-3 h-3 mr-1" 
-                          fill="currentColor" 
-                          viewBox="0 0 20 20"
-                        >
-                          <path 
-                            fillRule="evenodd" 
-                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" 
-                            clipRule="evenodd" 
-                          />
-                        </svg>
-                        {examinations.name}
-                        {examinations.exam_boards?.[0]?.name && (
-                          <span className="ml-1">• {examinations.exam_boards[0].name}</span>
-                        )}
-                      </Link>
-                    ))}
-                    
-                    {/* Category Badges */}
-                    {post.categories?.slice(0, 2).map(({ categories }) => (
-                      <Link
-                        key={categories.id}
-                        href={`/category/${categories.slug}`}
-                        className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800 hover:bg-blue-200 transition-colors no-underline relative z-30"
-                        itemProp="articleSection"
-                      >
-                        {categories.name}
-                      </Link>
-                    ))}
-                  </div>
+            {post.title}
+          </Link>
+          
+          {/* Hover Underline Effect */}
+          <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-600  "></span>
+        </h2>
 
-                  {/* Post Title with Hover Effect */}
-                  <h2 className="mb-3 relative">
-                    <Link 
-                      href={`/posts/${post.slug}`}
-                      className="text-1xl md:text-2xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors leading-tight block no-underline"
-                      itemProp="headline"
-                    >
-                      {post.title}
-                    </Link>
-                    
-                    {/* Hover Underline Effect */}
-                    <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-600  "></span>
-                  </h2>
+        {/* Post Description with Hover Effect */}
+        {post.short_description && (
+          <div className="relative mb-4">
+            <Link 
+              href={`/posts/${post.slug}`}
+              className="text-gray-600  leading-relaxed group-hover:text-gray-800 transition-colors block no-underline"
+              itemProp="description"
+            >
+              {post.short_description}
+            </Link>
+            {/* Hover underline for description */}
+            <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-600  duration-300"></span>
+          </div>
+        )}
 
-                  {/* Post Description with Hover Effect */}
-                  {post.short_description && (
-                    <div className="relative mb-4">
-                      <Link 
-                        href={`/posts/${post.slug}`}
-                        className="text-gray-600  leading-relaxed group-hover:text-gray-800 transition-colors block no-underline"
-                        itemProp="description"
-                      >
-                        {post.short_description}
-                      </Link>
-                      {/* Hover underline for description */}
-                      <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-600  duration-300"></span>
-                    </div>
+        {/* Post Meta - Interactive Elements */}
+        <div className="flex flex-wrap items-center justify-between mt-6 relative z-20">
+          <div className="flex items-center space-x-4">
+            {/* Author with Link */}
+            {post.author && (
+              <div 
+                className="flex items-center space-x-2 group/author"
+                itemProp="author"
+                itemScope
+                itemType="https://schema.org/Person"
+              >
+                
+                  {post.author.avatar_url && (
+                    <img
+                      src={post.author.avatar_url}
+                      alt={post.author.name}
+                      className="w-8 h-8 rounded-full"
+                      itemProp="image"
+                      loading="lazy"
+                    />
                   )}
-
-                  {/* Post Meta - Interactive Elements */}
-                  <div className="flex flex-wrap items-center justify-between mt-6 relative z-20">
-                    <div className="flex items-center space-x-4">
-                      {/* Author with Link */}
-                      {post.author && (
-                        <div 
-                          className="flex items-center space-x-2 group/author"
-                          itemProp="author"
-                          itemScope
-                          itemType="https://schema.org/Person"
-                        >
-                          
-                            {post.author.avatar_url && (
-                              <img
-                                src={post.author.avatar_url}
-                                alt={post.author.name}
-                                className="w-8 h-8 rounded-full"
-                                itemProp="image"
-                                loading="lazy"
-                              />
-                            )}
-                            <span 
-                              className="text-gray-700 font-medium hover:text-blue-600 transition-colors"
-                              itemProp="name"
-                            >
-                              {post.author.name}
-                            </span>
-                      
-                        </div>
-                      )}
-                      
-                      {/* Date */}
-                      <div className="relative">
-                        <time 
-                          className="text-gray-500 text-sm group-hover:text-gray-700 transition-colors"
-                          dateTime={post.published_at}
-                          itemProp="datePublished"
-                        >
-                          {formatDate(post.published_at)}
-                        </time>
-                      </div>
-                      
-                      {/* Reading Time Estimate */}
-                      <div className="relative">
-                        <span className="text-gray-500 text-sm group-hover:text-gray-700 transition-colors">
-                          • {Math.ceil(post.short_description?.split(' ').length / 200) || 5} min read
-                        </span>
-                      </div>
-                    </div>
-                    
-                    {/* Updated Badge if recently updated */}
-                    {post.updated_at && 
-                      new Date(post.updated_at) > new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) && (
-                        <div>
-                          <Link
-                            href={`/posts/${post.slug}#updates`}
-                            className="inline-flex items-center px-2 py-1 rounded text-xs font-semibold bg-green-100 text-green-800 hover:bg-green-200 transition-colors no-underline"
-                            aria-label="See recent updates"
-                          >
-                            <svg 
-                              className="w-3 h-3 mr-1" 
-                              fill="currentColor" 
-                              viewBox="0 0 20 20"
-                            >
-                              <path 
-                                fillRule="evenodd" 
-                                d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" 
-                                clipRule="evenodd" 
-                              />
-                            </svg>
-                            Updated
-                          </Link>
-                        </div>
-                      )}
-                  </div>
+                  <span 
+                    className="text-gray-700 font-medium hover:text-blue-600 transition-colors"
+                    itemProp="name"
+                  >
+                    {post.author.name}
+                  </span>
+            
+              </div>
+            )}
+            
+            {/* Date */}
+            <div className="relative">
+              <time 
+                className="text-gray-500 text-sm group-hover:text-gray-700 transition-colors"
+                dateTime={post.published_at}
+                itemProp="datePublished"
+              >
+                {formatDate(post.published_at)}
+              </time>
+            </div>
+            
+            {/* Reading Time Estimate - Hidden on mobile */}
+            <div className="relative hidden sm:block">
+              <span className="text-gray-500 text-sm group-hover:text-gray-700 transition-colors">
+                • {Math.ceil(post.short_description?.split(' ').length / 200) || 5} min read
+              </span>
+            </div>
+          </div>
+          
+          {/* Updated Badge if recently updated - Hidden on mobile */}
+          {post.updated_at && 
+            new Date(post.updated_at) > new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) && (
+              <div className="hidden sm:block">
+                <Link
+                  href={`/posts/${post.slug}#updates`}
+                  className="inline-flex items-center px-2 py-1 rounded text-xs font-semibold bg-green-100 text-green-800 hover:bg-green-200 transition-colors no-underline"
+                  aria-label="See recent updates"
+                >
+                  <svg 
+                    className="w-3 h-3 mr-1" 
+                    fill="currentColor" 
+                    viewBox="0 0 20 20"
+                  >
+                    <path 
+                      fillRule="evenodd" 
+                      d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" 
+                      clipRule="evenodd" 
+                    />
+                  </svg>
+                  Updated
+                </Link>
+              </div>
+            )}
+        </div>
 
                   {/* Hover Arrow Indicator */}
                   <div className="absolute right-4 top-1/2 transform -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
