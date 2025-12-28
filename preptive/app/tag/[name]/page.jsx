@@ -6,12 +6,12 @@ import { createClient } from '@/utils/supabase/server';
 export async function generateMetadata({ params }) {
   const { name } = await params;
   const supabase = createClient();
-
+const tagName = decodeURIComponent(name);
   try {
     const { data: tag, error } = await supabase
       .from('tags')
-      .select('name')
-      .eq('name', decodeURIComponent(name))
+      .select('name','description')
+      .eq('name', tagName)
       .single();
 
     if (error || !tag) {
@@ -22,37 +22,18 @@ export async function generateMetadata({ params }) {
     }
 
     return {
-      title: `${tag.name} | Latest Exam Updates & Resources | Preptive`,
-      description: `Explore all articles and exam resources tagged with ${tag.name}. Get latest syllabus, admit cards, results, and preparation tips.`,
-      keywords: [
-        `${tag.name} syllabus`,
-        `${tag.name} exam`,
-        `${tag.name} 2025`,
-        `${tag.name} preparation`,
-        'study materials',
-        'exam updates'
-      ],
+      title: `${tag.name} | Preptive`,
+      description: tag.description ,
       openGraph: {
-        title: `${tag.name} - Exam Resources & Updates | Preptive`,
-        description: `Comprehensive exam preparation resources tagged with ${tag.name} including syllabus, patterns, and latest updates.`,
+        title: `${tag.name}  | Preptive`,
         url: `https://www.preptive.in/tag/${name}`,
-        siteName: 'Preptive',
-        images: [
-          {
-            url: 'https://www.preptive.in/og-image.jpg',
-            width: 1200,
-            height: 630,
-            alt: `${tag.name} Exam Resources - Preptive`,
-          },
-        ],
-        locale: 'en_US',
+        siteName: 'Preptive',     
+        locale: 'en_IN',
         type: 'website',
       },
       twitter: {
         card: 'summary_large_image',
-        title: `${tag.name} Exam Resources | Preptive`,
-        description: `Latest ${tag.name} syllabus, updates, and preparation tips.`,
-        images: ['https://www.preptive.in/og-image.jpg'],
+        title: `${tag.name} articles | Preptive`,
         site: '@preptive',
       },
       alternates: {
@@ -245,7 +226,6 @@ export default async function TagPage({ params }) {
                 <span className="inline-flex items-center px-3 py-1 text-sm font-medium text-blue-700 bg-blue-100 rounded-full">
                   #{tag.name}
                 </span>
-                
               </div>
             </div>
           </div>
@@ -253,15 +233,13 @@ export default async function TagPage({ params }) {
 
         {/* Main Content */}
         <main className="px-4 py-12 mx-auto max-w-7xl sm:px-6 lg:px-8">
-         
           {/* Simple List View */}
           <div className="space-y-6">
             {/* Loop through posts (latest first) */}
             {posts
               ?.sort((a, b) => new Date(b.published_at) - new Date(a.published_at))
               .map((post) => (
-                <Link 
-                  href={`/posts/${post.slug}`} 
+                <div 
                   key={post.id} 
                   className="block pb-6 border-b border-gray-200 group"
                 >
@@ -286,29 +264,33 @@ export default async function TagPage({ params }) {
                   </div>
 
                   {/* Title (Click + Underline Hover) */}
-                  <h2
-                    className="
-                      font-semibold text-gray-900 inline-block relative 
-                      hover:text-blue-600 transition-colors
-                      text-lg md:text-xl
-                    "
-                  >
-                    <span
+                  <Link href={`/posts/${post.slug}`}>
+                    <h2
                       className="
-                        bg-gradient-to-r from-blue-600 to-blue-600 
-                        bg-[length:0px_2px] bg-left-bottom bg-no-repeat 
-                        transition-[background-size] duration-300 
-                        group-hover:bg-[length:100%_2px] pb-0.5
+                        font-semibold text-gray-900 inline-block relative 
+                        hover:text-blue-600 transition-colors
+                        text-lg md:text-xl
                       "
                     >
-                      {post.title}
-                    </span>
-                  </h2>
+                      <span
+                        className="
+                          bg-gradient-to-r from-blue-600 to-blue-600 
+                          bg-[length:0px_2px] bg-left-bottom bg-no-repeat 
+                          transition-[background-size] duration-300 
+                          group-hover:bg-[length:100%_2px] pb-0.5
+                        "
+                      >
+                        {post.title}
+                      </span>
+                    </h2>
+                  </Link>
 
                   {/* Description (Also Clickable) */}
-                  <p className="mt-2 text-gray-600 text-sm md:text-base">
-                    {post.short_description || "Click to read the full article."}
-                  </p>
+                  <Link href={`/posts/${post.slug}`}>
+                    <p className="mt-2 text-gray-600 text-sm md:text-base">
+                      {post.short_description || "Click to read the full article."}
+                    </p>
+                  </Link>
 
                   {/* Additional Tags */}
                   <div className="flex flex-wrap gap-2 mt-3">
@@ -327,7 +309,7 @@ export default async function TagPage({ params }) {
                       </span>
                     )}
                   </div>
-                </Link>
+                </div>
               ))}
           </div>
 

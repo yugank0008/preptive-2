@@ -20,23 +20,13 @@ import {
 
 // Generate metadata for SEO
 export const metadata = {
-  title: 'Preptive - Exam Updates, Syllabus, Results & Government Jobs',
-  description: 'Preptive provides latest exam updates, syllabus, admit cards, results, job notifications and study materials for all competitive exams in India. Stay updated with UPSC, SSC, Banking, Railway exam notifications.',
+  title: 'PrepTive – Latest Updates, Exam Syllabus, Admit Cards, Jobs & Results',
+  description: 'PrepTive provides latest education updates, exam patterns, syllabus, admit cards, important dates, government jobs, and results. Stay ahead in your exam preparation with accurate, verified, and up-to-date information.',
   keywords: [
-    'exam updates',
-    'competitive exam syllabus',
-    'government jobs',
-    'admit card download',
-    'results 2025',
-    'study materials',
-    'latest notifications',
-    'UPSC',
-    'SSC',
-    'Banking exams',
-    'Railway jobs'
+    'education updates', 'exam syllabus', 'admit card', 'exam pattern', 'government jobs', 'exam results', 'important dates', 'competitive exams', 'study materials', 'Preptive'
   ].join(', '),
   openGraph: {
-    title: 'Preptive - Your Complete Exam Preparation Platform',
+    title: 'Preptive - Updates, Exam Syllabus, Admit Cards, Jobs & Results',
     description: 'Latest exam updates, syllabus, results, admit cards and job notifications for all competitive exams in India.',
     url: 'https://www.preptive.in',
     siteName: 'Preptive',
@@ -45,7 +35,7 @@ export const metadata = {
         url: 'https://www.preptive.in/og-image.jpg',
         width: 1200,
         height: 630,
-        alt: 'Preptive - Exam Preparation Platform',
+        alt: 'Preptive',
       },
     ],
     locale: 'en_IN',
@@ -53,7 +43,7 @@ export const metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Preptive - Exam Updates & Resources',
+    title: 'Preptive - Updates, Exam Syllabus, Admit Cards, Jobs & Results',
     description: 'Get latest exam updates, syllabus, results and job notifications',
     images: ['https://www.preptive.in/og-image.jpg'],
     site: '@preptive',
@@ -72,9 +62,7 @@ export const metadata = {
       'max-snippet': -1,
     },
   },
-  verification: {
-    google: 'your-google-verification-code',
-  },
+ 
 };
 
 // PostList Component

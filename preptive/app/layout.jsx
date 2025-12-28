@@ -7,20 +7,18 @@ import { Inter } from 'next/font/google';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata = {
-  title: 'Preptive - Government Job Portal | Latest Updates, Results, Admit Cards',
-  description: "India's premier platform for government job aspirants. Get latest exam updates, admit cards, results, syllabus, and study materials for all competitive exams.",
-  keywords: ['government jobs', 'ssc', 'upsc', 'banking exams', 'admit card', 'results', 'syllabus', 'study materials'],
-  authors: [{ name: 'Preptive Team' }],
+  title: 'Preptive - Latest Updates, Results, Admit Cards',
+ authors: [{ name: 'Preptive Team' }],
   robots: 'index, follow',
   openGraph: {
-    title: 'Preptive - Government Job Portal',
-    description: 'Your gateway to government careers with latest updates and resources',
+    title: 'Preptive - Latest Updates, Exam Syllabus, Admit Cards, Jobs & Results',
+    description: 'Latest Updates, Exam Syllabus, Admit Cards, Jobs & Results',
     type: 'website',
     locale: 'en_IN',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Preptive - Government Job Portal',
+    title: 'Preptive - Latest Updates, Exam Syllabus, Admit Cards, Jobs & Results',
     description: 'Latest government job updates and resources',
   },
 };
@@ -44,7 +42,7 @@ export default function RootLayout({ children }) {
               "@context": "https://schema.org",
               "@type": "EducationalOrganization",
               "name": "Preptive",
-              "description": "Government Job Preparation Portal",
+              "description": "Government Job Updates Portal",
               "url": "https://preptive.in",
               "logo": "https://preptive.in/logo.png",
               "sameAs": [

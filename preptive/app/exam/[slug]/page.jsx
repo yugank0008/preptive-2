@@ -43,25 +43,25 @@ export async function generateMetadata({ params }) {
       ],
       openGraph: {
         title: `${examName} - Latest Updates, Syllabus, Exam Pattern | Preptive`,
-        description: exam.description || `Everything you need to know about ${examName}: syllabus, pattern, preparation tips, and latest updates.`,
+        description: exam.description || ` ${examName}: syllabus, pattern, preparation tips, and latest updates.`,
         url: `https://www.preptive.in/exam/${slug}`,
         siteName: 'Preptive',
         images: [
           {
-            url: 'https://www.preptive.in/og-image.jpg',
+            url: exam.image,
             width: 1200,
             height: 630,
-            alt: `${examName} Latest Updates, Syllabus, Exam Pattern - Preptive`,
+            alt: exam.alt,
           },
         ],
-        locale: 'en_US',
+        locale: 'en_IN',
         type: 'website',
       },
       twitter: {
         card: 'summary_large_image',
         title: `${examName} - Latest Updates, Syllabus, Exam Pattern | Preptive`,
-        description: exam.description || `Latest ${examName} syllabus, updates, and preparation tips.`,
-        images: ['https://www.preptive.in/og-image.jpg'],
+        description: exam.description || `Latest ${examName} updates, syllabus, and preparation tips.`,
+        images: exam.image,
         site: '@preptive',
       },
       alternates: {

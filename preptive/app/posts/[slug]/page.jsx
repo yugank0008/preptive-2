@@ -59,6 +59,7 @@ export async function generateMetadata({ params }) {
       published_at,
       updated_at,
       language,
+      image_alt,
       seo_keywords
     `)
     .eq('slug', slug)
@@ -97,44 +98,23 @@ export async function generateMetadata({ params }) {
     ...categoryNames,
     
   ];
-  const keywords = post.seo_keywords ? 
-    [...post.seo_keywords, ...defaultKeywords] : 
-    defaultKeywords;
+  const keywords = post.seo_keywords;
   
   const canonicalUrl = `https://www.preptive.in/posts/${slug}`;
   const featuredImage = post.featured_image || 'https://www.preptive.in/og-default.jpg';
   
-  // Schema.org JSON-LD for rich snippets
-  const schemaData = {
-    '@context': 'https://schema.org',
-    '@type': 'Article',
-    headline: post.title,
-    description: description.substring(0, 150),
-    image: featuredImage,
-    datePublished: post.published_at,
-    dateModified: post.updated_at,
-    author: post.author ? {
-      '@type': 'Person',
-      name: post.author.name,
-    } : undefined,
-    publisher: {
-      '@type': 'Organization',
-      name: 'PrepTive',
-      logo: 'https://www.preptive.in/logo.png',
-    },
-    mainEntityOfPage: {
-      '@type': 'WebPage',
-      '@id': canonicalUrl,
-    },
-    keywords: keywords.join(', '),
-  };
+  
 
   return {
     // Basic metadata
     title: pageTitle,
     description,
     keywords,
-    
+   
+    other: {
+    'content-language': post.language === 'hi' ? 'hi' : 'en',
+  },
+
     // Open Graph
     openGraph: {
       title: pageTitle,
@@ -146,10 +126,10 @@ export async function generateMetadata({ params }) {
           url: featuredImage,
           width: 1200,
           height: 630,
-          alt: post.title,
+          alt: post.image_alt || post.title,
         },
       ],
-      locale: post.language === 'hi' ? 'hi_IN' : 'en_US',
+      locale: post.language === 'hi' ? 'hi_IN' : 'en_IN',
       type: 'article',
       publishedTime: post.published_at,
       modifiedTime: post.updated_at,
@@ -185,28 +165,20 @@ export async function generateMetadata({ params }) {
     // Canonical
     alternates: {
       canonical: canonicalUrl,
-      languages: {
-        'en': canonicalUrl,
-        'hi': `${canonicalUrl}?lang=hi`,
-      },
+      
     },
     
-    // Verification
-    verification: {
-      google: 'your-google-verification-code',
-      yandex: 'your-yandex-verification-code',
-      yahoo: 'your-yahoo-verification-code',
-    },
+   
     
     // Additional
     authors: post.author ? [{ name: post.author.name }] : [],
     publisher: 'PrepTive',
     category: categoryNames[0] || 'Education',
     
-    // Structured data
-    other: {
-      'application/ld+json': JSON.stringify(schemaData),
-    },
+   
+
+
+
   };
 }
 
@@ -274,6 +246,7 @@ export default async function PostPage({ params }) {
         id,
         slug,
         title,
+        image_alt,
         short_description,
         featured_image,
         published_at,
@@ -559,7 +532,7 @@ export default async function PostPage({ params }) {
                     <div className="rounded-2xl overflow-hidden shadow-2xl">
                       <img
                         src={post.featured_image}
-                        alt={post.title}
+                        alt={post.image_alt || post.title}
                         className="w-full h-auto object-cover"
                         itemProp="image"
                         loading="eager"

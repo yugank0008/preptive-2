@@ -12,7 +12,7 @@ export async function generateMetadata({ params }) {
   try {
     const { data: category, error } = await supabase
       .from('categories')
-      .select('name, title, description, seo_keywords')
+      .select('name, title, description, seo_keywords, category_img')
       .eq('slug', slug)
       .single();
 
@@ -29,9 +29,9 @@ export async function generateMetadata({ params }) {
     // Use seo_keywords if available, otherwise generate default keywords
     const keywords = category.seo_keywords || [
       `${category.name.toLowerCase()} syllabus`,
-      `${category.name.toLowerCase()} exam`,
-      `${category.name.toLowerCase()} 2025`,
-      `${category.name.toLowerCase()} preparation`,
+      `exam`,
+      `2025`,
+      `preparation`,
       'study materials',
       'exam updates'
     ];
@@ -41,29 +41,29 @@ export async function generateMetadata({ params }) {
 
     return {
       title: `${pageTitle}`,
-      description: category.description || `Stay updated with the latest ${category.name} on Preptive.`,
+      description: category.description,
       keywords: keywordsString,
       openGraph: {
         title: `${pageTitle}`,
-        description: category.description || `Stay updated with the latest ${category.name} on Preptive.`,
+        description: category.description,
         url: `https://www.preptive.in/category/${slug}`,
         siteName: 'Preptive',
         images: [
           {
-            url: 'https://www.preptive.in/og-image.jpg',
+            url: category.category_img,
             width: 1200,
             height: 630,
-            alt: `${pageTitle}`,
+            
           },
         ],
-        locale: 'en_US',
+        locale: 'en_IN',
         type: 'website',
       },
       twitter: {
         card: 'summary_large_image',
         title: `${pageTitle}`,
         description: category.description || `Latest ${category.name}`,
-        images: ['https://www.preptive.in/og-image.jpg'],
+        images: category.category_img,
         site: '@preptive',
       },
       alternates: {
@@ -108,7 +108,7 @@ export default async function CategoryPage({ params }) {
     }
 
     // Use category.title if available, otherwise use name
-    const categoryDisplayName = category.title || category.name;
+    const categoryDisplayName = category.name || category.title;
 
     // Fetch posts for this category with proper joins
     const { data: posts, error: postsError } = await supabase
@@ -169,8 +169,8 @@ export default async function CategoryPage({ params }) {
             __html: JSON.stringify({
               '@context': 'https://schema.org',
               '@type': 'CollectionPage',
-              name: `${categoryDisplayName} - Exam Resources`,
-              description: category.description || `Stay updated with the latest ${category.name} on Preptive.`,
+              name: `${categoryDisplayName} - Preptive`,
+              description: category.description,
               keywords: Array.isArray(category.seo_keywords) ? category.seo_keywords.join(', ') : category.seo_keywords || '',
               url: `https://www.preptive.in/category/${slug}`,
               publisher: {
@@ -510,3 +510,5 @@ export async function generateStaticParams() {
     return [];
   }
 }
+
+

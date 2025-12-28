@@ -76,7 +76,7 @@ export async function generateMetadata({ searchParams }) {
           url: 'https://www.preptive.in/og-posts.jpg',
           width: 1200,
           height: 630,
-          alt: 'PrepTive Study Materials',
+          alt: 'PrepTive',
         },
       ],
       locale: 'en_US',
@@ -109,10 +109,7 @@ export async function generateMetadata({ searchParams }) {
     // Canonical and pagination
     alternates: {
       canonical: canonicalUrl,
-      languages: {
-        'en': canonicalUrl,
-        'hi': `${canonicalUrl}?lang=hi`,
-      },
+     
       ...(currentPage > 1 && {
         prev: `${baseUrl}?page=${currentPage - 1}`,
       }),
@@ -121,11 +118,7 @@ export async function generateMetadata({ searchParams }) {
       }),
     },
     
-    // Verification
-    verification: {
-      google: 'your-google-verification-code',
-      yandex: 'your-yandex-verification-code',
-    },
+   
     
     // Additional
     publisher: 'PrepTive',
